@@ -1,11 +1,12 @@
-
-// connect.js
 const { MongoClient } = require('mongodb');
 
 require('dotenv').config()
 
+
 let client;
 
+
+// Connect to Mongo DB
 async function connectToMongo() {
 
     if (!process.env.MONGO_URI) {
@@ -21,10 +22,9 @@ async function connectToMongo() {
         console.log("Connection Succesfull to MongoDB")
     }
 
-
+    // Create DB
     return client.db("orgpulse")
 }
-
 
 
 module.exports = { connectToMongo }

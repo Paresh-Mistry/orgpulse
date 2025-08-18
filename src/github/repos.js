@@ -1,6 +1,7 @@
 const { default: axios } = require("axios");
 
 
+// Mapping Repo 
 function mapRepo(apiJson, org) {
     return {
         org,
@@ -17,6 +18,7 @@ function mapRepo(apiJson, org) {
 }
 
 
+// Fetch Repo from Mongo db
 async function fetchRepos(org, page) {
     const url = `https://api.github.com/orgs/${org}/repos?per_page=100&page=${page}`;
     const headers = {}
@@ -32,7 +34,7 @@ async function fetchRepos(org, page) {
 
     return {
         data: repo,
-        // hasNext: (await res).headers.Server.link && res.headers.link.includes('rel="next"'),
+        hasNext: (await res).headers.Server.link && res.headers.link.includes('rel="next"'),
     }
 }
 

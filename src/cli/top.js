@@ -1,5 +1,4 @@
 const { connectToMongo } = require("../db/connect");
-// const consoleTable = require("console.table"); // built-in from Node 10+
 
 async function topCommand(options) {
   const db = await connectToMongo();

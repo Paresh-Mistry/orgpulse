@@ -1,5 +1,6 @@
 const { default: axios } = require("axios")
 
+// Mapping Issues
 function mapIssue(apiJson, org, repoName) {
     return {
         repo: `${org}/${repoName}`,
@@ -10,6 +11,8 @@ function mapIssue(apiJson, org, repoName) {
     };
 }
 
+
+// fetch Issues from Mongo DB  
 async function fetchIssues(org) {
     const url = `https://api.github.com/orgs/${org}/issues?per_page=100&page=${page}`
     const headers = {}

@@ -1,31 +1,3 @@
-// const { connectToMongo } = require('../db/connect');
-// const { fetchRepoStars } = require('../github/repos');
-
-// async function syncStarsCommand(options) {
-//     const db = await connectToMongo();
-//     const repos = db.collection('repos');
-
-//     console.log(fetchRepoStars(options.org, repo.name).stars)
-
-//     const docs = await repos.find({ org: options.org }).toArray();
-
-//     for (const repo of docs) {
-//         const updated = await fetchRepoStars(options.org, repo.name);
-//         await repos.updateOne(
-//             { org: options.org, name: repo.name },
-//             { $set: { stars: updated.stars, forks: updated.forks } }
-//         );
-//         console.log(`⭐ Updated ${repo.name} → ${updated.stars} stars, ${updated.forks} forks`);
-//     }
-
-//     console.log("✅ Sync complete");
-// }
-
-
-// module.exports = syncStarsCommand;
-
-
-
 const axios = require("axios");
 const { connectToMongo } = require("../db/connect");
 
@@ -58,10 +30,10 @@ async function syncStarsCommand(options) {
           );
 
           console.log(
-            `⭐ Updated ${repo.name} → ${updated.stars} stars, ${updated.forks} forks`
+            `Updated ${repo.name} → ${updated.stars} stars, ${updated.forks} forks`
           );
         } catch (err) {
-          console.error(`⚠️ Failed to update ${repo.name}`, err.message);
+          console.error(`Failed to update ${repo.name}`, err.message);
         }
       }
     const star = await fetchRepoStars(options.org, 'go')
@@ -72,7 +44,7 @@ async function syncStarsCommand(options) {
         console.log("error", error)
     }
 
-    console.log("✅ Sync complete");
+    console.log("Sync complete");
 }
 
 module.exports = syncStarsCommand;

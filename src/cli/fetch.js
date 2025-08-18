@@ -61,7 +61,7 @@ async function fetchCommand(org) {
       }
     }
 
-    console.log(`💾 Checkpoint saved (page ${page})`);
+    console.log(`Checkpoint saved (page ${page})`);
 
     page++;
   }
