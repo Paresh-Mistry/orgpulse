@@ -1,26 +1,30 @@
+
+// connect.js
 const { MongoClient } = require('mongodb');
 
 require('dotenv').config()
 
 let client;
 
-async function connectToMongo(){
+async function connectToMongo() {
 
-    if(!process.env.MONGO_URI){
-        throw new error("MONGO DB URI IS NOT SET IN .env")
+    if (!process.env.MONGO_URI) {
+        console.error(`MONGO DB URI IS NOT SET IN .env ${process.env.MONGO_URI}`)
     }
 
-    if(!client){
-        client = new MongoClient.U(process.env.MONGO_URI)
+    console.log("Running..")
+
+    if (!client) {
+        client = new MongoClient(process.env.MONGO_URI)
+        console.log("Connecting..")
         await client.connect()
-        if(client.connect == true){
-            console.log("Connection Succesfull to MongoDB")
-        }
+        console.log("Connection Succesfull to MongoDB")
     }
 
-    return client.db
+
+    return client.db("orgpulse")
 }
 
 
 
-module.exports = {connectToMongo}
+module.exports = { connectToMongo }

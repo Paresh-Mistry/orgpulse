@@ -10,17 +10,13 @@ program
 program
     .command("init")
     .description("Initialized the Orgpulse CLI within your environment.")
-    .action((options) => {
-        console.log("orgpulse init executed (setup DB here)")
-    })
+    .action(require('./cli/init'))
 
 
 program
     .command("fetch <org>")
     .description("Fetch repos & issues for an org")
-    .action((org) => {
-        console.log(`Fetching repos for org: ${org}`);
-    });
+    .action(require('./cli/fetch'));
 
 
 program
@@ -29,9 +25,7 @@ program
     .option("--metric <metric>", "stars|issues", "stars")
     .option("--limit <n>", "Limit results", 10)
     .description("Show top repos by stars or issues")
-    .action((options) => {
-        console.log(`✅ Top repos for org: ${options.org}, metric: ${options.metric}`);
-    });
+    .action(require("./cli/top"));
 
 
 
@@ -52,7 +46,10 @@ program
     .command("sync-stars")
     .requiredOption("--org <org>", "Organization name")
     .description("Refresh stars & forks for repos")
-    .action(require('./cli/syncstar'));
+    .action(require('./cli/syncstar'))
+    // .action((options) => {
+    //     console.log(`✅ Stars for org: ${options.org}`);
+    // });
 
 
 

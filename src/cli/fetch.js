@@ -1,6 +1,23 @@
+const { connectToMongo } = require("../db/connect")
+const { readFileSync, writeFileSync, existsSync } = require("node:fs")
+const { join } = require('node:path');
+const { fetchRepos, mapRepo } = require("../github/repos")
+const { fetchIssues, mapIssue } = require("../github/issues")
 
-import { connectToMongo } from "../db/connect"
 
+const checkpointFile = join(process.cwd(), "checkpoint.json");
+
+function loadCheckpoint() {
+  if (existsSync(checkpointFile)) { 
+    return JSON.parse(readFileSync(checkpointFile, "utf8"));
+  }
+  return null;
+}
+
+// Save checkpoint
+function saveCheckpoint(data) {
+  writeFileSync(checkpointFile, JSON.stringify(data, null, 2));
+}
 
 async function fetchCommand(org) {
   const db = await connectToMongo();
@@ -10,11 +27,13 @@ async function fetchCommand(org) {
   let checkpoint = loadCheckpoint();
   let page = checkpoint && checkpoint.org === org ? checkpoint.lastPage : 1;
 
+  console.log(page)
+
   console.log(`Fetching repos for org: ${org}, starting at page ${page}`);
 
   while (true) {
     const { data: repos, hasNext } = await fetchRepos(org, page);
-    if (!repos.length) break;
+    // if (!repos.length) break;
 
     for (const repo of repos) {
       const repoDoc = mapRepo(repo, org);
@@ -44,7 +63,6 @@ async function fetchCommand(org) {
 
     console.log(`💾 Checkpoint saved (page ${page})`);
 
-    if (!hasNext) break;
     page++;
   }
 
