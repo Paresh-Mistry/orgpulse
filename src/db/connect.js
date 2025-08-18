@@ -1,4 +1,5 @@
-const { MongoClient } = require('mongodb')
+const { MongoClient } = require('mongodb');
+
 require('dotenv').config()
 
 let client;
@@ -13,7 +14,6 @@ async function connectToMongo(){
         client = new MongoClient.U(process.env.MONGO_URI)
         await client.connect()
         if(client.connect == true){
-            return 
             console.log("Connection Succesfull to MongoDB")
         }
     }
