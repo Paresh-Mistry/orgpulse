@@ -23,4 +23,3 @@ async function fetchRepoStars(org, repoName) {
 
 module.exports = fetchRepoStars
 
-

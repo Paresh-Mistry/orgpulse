@@ -1,14 +1,14 @@
+
 const { connectToMongo } = require("../db/connect")
 const { readFileSync, writeFileSync, existsSync } = require("node:fs")
 const { join } = require('node:path');
 const { fetchRepos, mapRepo } = require("../github/repos")
 const { fetchIssues, mapIssue } = require("../github/issues")
 
-
 const checkpointFile = join(process.cwd(), "checkpoint.json");
 
 function loadCheckpoint() {
-  if (existsSync(checkpointFile)) { 
+  if (existsSync(checkpointFile)) {
     return JSON.parse(readFileSync(checkpointFile, "utf8"));
   }
   return null;
@@ -19,6 +19,7 @@ function saveCheckpoint(data) {
   writeFileSync(checkpointFile, JSON.stringify(data, null, 2));
 }
 
+
 async function fetchCommand(org) {
   const db = await connectToMongo();
   const reposCol = db.collection("repos");
@@ -27,28 +28,30 @@ async function fetchCommand(org) {
   let checkpoint = loadCheckpoint();
   let page = checkpoint && checkpoint.org === org ? checkpoint.lastPage : 1;
 
-  console.log(page)
+  console.log(`Fetching repos for org: ${org}, starting from page ${page}`);
 
-  console.log(`Fetching repos for org: ${org}, starting at page ${page}`);
 
   while (true) {
     const { data: repos, hasNext } = await fetchRepos(org, page);
     // if (!repos.length) break;
 
     for (const repo of repos) {
+
       const repoDoc = mapRepo(repo, org);
+
       await reposCol.updateOne(
         { org, name: repoDoc.name },
         { $set: repoDoc },
         { upsert: true }
       );
-      console.log(`Stored repo: ${repoDoc.name}`);
+
+      console.log(`Stored repo: ${repoDoc.name}\n`);
 
       // Fetch issues
       try {
-        const issues = await fetchIssues(org, repo.name);
+        const issues = await fetchIssues(org, page);
         for (const issue of issues) {
-          const issueDoc = mapIssue(issue, org, repo.name);
+          const issueDoc = mapIssue(issue, org);
           await issuesCol.updateOne(
             { repo: issueDoc.repo, number: issueDoc.number },
             { $set: issueDoc },
@@ -63,6 +66,7 @@ async function fetchCommand(org) {
 
     console.log(`Checkpoint saved (page ${page})`);
 
+    if (!hasNext) break;
     page++;
   }
 

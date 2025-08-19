@@ -1,30 +1,23 @@
-const { MongoClient } = require('mongodb');
+const { MongoClient } = require("mongodb")
 
-require('dotenv').config()
-
+require("dotenv").config()
 
 let client;
 
-
 // Connect to Mongo DB
 async function connectToMongo() {
+  if (!process.env.MONGO_URI) {
+    throw new Error("MONGO DB URI IS NOT SET IN .env");
+  }
 
-    if (!process.env.MONGO_URI) {
-        console.error(`MONGO DB URI IS NOT SET IN .env ${process.env.MONGO_URI}`)
-    }
+  if (!client) {
+    client = new MongoClient(process.env.MONGO_URI);
+    await client.connect();
+    console.log("Connection Successful to MongoDB");
+  }
 
-    console.log("Running..")
-
-    if (!client) {
-        client = new MongoClient(process.env.MONGO_URI)
-        console.log("Connecting..")
-        await client.connect()
-        console.log("Connection Succesfull to MongoDB")
-    }
-
-    // Create DB
-    return client.db("orgpulse")
+  // Create DB
+  return client.db("orgpulse");
 }
 
-
-module.exports = { connectToMongo }
+module.exports = {connectToMongo}
