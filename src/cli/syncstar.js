@@ -37,13 +37,6 @@ async function syncStarsCommand(options) {
           console.error(`Failed to update ${repo.name}`, err.message);
         }
       }
-    const star = await fetchRepoStars(options.org, 'go')
-    try {
-        console.log(options.org , "\n", star);
-    }
-    catch (error) {
-        console.log("error", error)
-    }
 
     console.log("Sync complete");
 }

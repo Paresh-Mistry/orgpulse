@@ -10,10 +10,6 @@ async function fetchRepoStars(org, repoName) {
   if (process.env.GITHUB_TOKEN) {
     headers.Authorization = `token ${process.env.GITHUB_TOKEN}`;
   }
-  else{
-    console.log("No Token Found");
-    
-  }
   const res = await axios.get(url, { headers });
   return {
     stars: res.data.stargazers_count,

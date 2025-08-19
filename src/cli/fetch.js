@@ -1,12 +1,13 @@
-
-const { connectToMongo } = require("../db/connect")
-const { readFileSync, writeFileSync, existsSync } = require("node:fs")
-const { join } = require('node:path');
-const { fetchRepos, mapRepo } = require("../github/repos")
-const { fetchIssues, mapIssue } = require("../github/issues")
+// fetch.js
+const { connectToMongo } = require("../db/connect");
+const { readFileSync, writeFileSync, existsSync } = require("node:fs");
+const { join } = require("node:path");
+const { fetchRepos, mapRepo } = require("../github/repos");
+const { fetchIssues, mapIssue } = require("../github/issues");
 
 const checkpointFile = join(process.cwd(), "checkpoint.json");
 
+// Load checkpoint
 function loadCheckpoint() {
   if (existsSync(checkpointFile)) {
     return JSON.parse(readFileSync(checkpointFile, "utf8"));
@@ -19,7 +20,6 @@ function saveCheckpoint(data) {
   writeFileSync(checkpointFile, JSON.stringify(data, null, 2));
 }
 
-
 async function fetchCommand(org) {
   const db = await connectToMongo();
   const reposCol = db.collection("repos");
@@ -30,13 +30,10 @@ async function fetchCommand(org) {
 
   console.log(`Fetching repos for org: ${org}, starting from page ${page}`);
 
-
   while (true) {
     const { data: repos, hasNext } = await fetchRepos(org, page);
-    // if (!repos.length) break;
 
     for (const repo of repos) {
-
       const repoDoc = mapRepo(repo, org);
 
       await reposCol.updateOne(
@@ -45,26 +42,41 @@ async function fetchCommand(org) {
         { upsert: true }
       );
 
-      console.log(`Stored repo: ${repoDoc.name}\n`);
+      console.log(`Stored repo: ${repoDoc.name}`);
 
-      // Fetch issues
+      // Fetch issues for this repo
       try {
-        const issues = await fetchIssues(org, page);
-        for (const issue of issues) {
-          const issueDoc = mapIssue(issue, org);
-          await issuesCol.updateOne(
-            { repo: issueDoc.repo, number: issueDoc.number },
-            { $set: issueDoc },
-            { upsert: true }
+        let issuePage = 1;
+        while (true) {
+          const { data: issues, hasNext: issuesNext } = await fetchIssues(
+            repo.owner.login,
+            repo.name,
+            issuePage
           );
+
+          for (const issue of issues) {
+            const issueDoc = mapIssue(issue, repoDoc.name);
+            await issuesCol.updateOne(
+              { repo: issueDoc.repo, number: issueDoc.number },
+              { $set: issueDoc },
+              { upsert: true }
+            );
+          }
+
+          console.log(
+            `Stored ${issues.length} issues for ${repoDoc.name} (page ${issuePage})`
+          );
+
+          if (!issuesNext) break;
+          issuePage++;
         }
-        console.log(`Stored ${issues.length} issues for ${repoDoc.name}`);
       } catch (err) {
-        console.error(`Failed to fetch issues for ${repo.name}`, err.message);
+        console.error(`Failed to fetch issues for ${repoDoc.name}:`, err.message);
       }
     }
 
     console.log(`Checkpoint saved (page ${page})`);
+    saveCheckpoint({ org, lastPage: page });
 
     if (!hasNext) break;
     page++;
