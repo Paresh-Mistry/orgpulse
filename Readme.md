@@ -33,6 +33,7 @@ Orgpulse CLI is a powerful command-line tool to fetch, analyze, and export GitHu
 
 + ### [PDF-FILE](https://drive.google.com/file/d/1DgVOjOCTraHl4Cne8m-DVRtd5MvBpSTH/view?usp=drive_link)
 + ### [DOC-FILE](./public/docs/ORGPULSE_CLI_CMD.pdf)
++ ### [VIDEO-FILE]([./public/docs/ORGPULSE_CLI_CMD.pdf](https://drive.google.com/file/d/1hKQCw_7qOkgj6j4ehJbDdXYCI5hnGuf_/view?usp=drive_link))
 
 ---
 
